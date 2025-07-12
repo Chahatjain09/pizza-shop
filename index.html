@@ -2,31 +2,352 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="TE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizza Shopping</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="./scripts/controllers/product-controller.js" type="module" ></script>
+    <title>Pizza Palace - Order Online</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- Scripts -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script defer src="./scripts/services/payment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container">
-    <h1 class="alert alert-info text-center">Pizza Shop</h1>
-    <div class="row">
-        <div class="col-8">
-           <div class="row" id="output">
-
-        
-            <!-- here Dynamic columns , card are created...--> 
-         </div>
-         </div>
-        <div class="col-4" id="basket">
-            
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-pizza-slice me-2"></i>
+                Pizza Palace
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-category="pizzas">Pizzas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-category="sides">Sides</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-category="beverages">Beverages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-category="desserts">Desserts</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-light me-3" id="cartToggle">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" class="badge bg-danger ms-1">0</span>
+                    </button>
+                    <button class="btn btn-warning" id="trackOrder">
+                        <i class="fas fa-truck"></i> Track Order
+                    </button>
+                </div>
+            </div>
         </div>
-        <button id="rzp-button1">Pay</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold text-white mb-4">
+                        Fresh Pizza Delivered <span class="text-warning">Hot & Fast</span>
+                    </h1>
+                    <p class="lead text-white mb-4">
+                        Choose from our delicious range of pizzas, customize your order, and get it delivered fresh to your door in 30 minutes or less!
+                    </p>
+                    <button class="btn btn-warning btn-lg" onclick="document.getElementById('menu').scrollIntoView()">
+                        <i class="fas fa-utensils me-2"></i>Order Now
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&h=500&fit=crop" 
+                         alt="Delicious Pizza" class="img-fluid rounded-circle shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container my-5" id="menu">
+        <!-- Category Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Our Menu</h2>
+                <div class="d-flex justify-content-center">
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="category" id="all" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="all">All Items</label>
+                        
+                        <input type="radio" class="btn-check" name="category" id="pizzas" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="pizzas">Pizzas</label>
+                        
+                        <input type="radio" class="btn-check" name="category" id="sides" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="sides">Sides</label>
+                        
+                        <input type="radio" class="btn-check" name="category" id="beverages" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="beverages">Beverages</label>
+                        
+                        <input type="radio" class="btn-check" name="category" id="desserts" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="desserts">Desserts</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="row" id="productsGrid">
+            <!-- Products will be loaded here dynamically -->
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h5><i class="fas fa-shopping-cart me-2"></i>Your Order</h5>
+            <button class="btn-close" id="closeCart"></button>
+        </div>
+        <div class="cart-body" id="cartItems">
+            <div class="empty-cart text-center py-4">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Your cart is empty</p>
+                <p class="small text-muted">Add some delicious items to get started!</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="total-section mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Delivery:</span>
+                    <span id="delivery">₹40.00</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Tax:</span>
+                    <span id="tax">₹0.00</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total:</span>
+                    <span id="total">₹0.00</span>
+                </div>
+            </div>
+            <button class="btn btn-primary w-100 mb-2" id="checkoutBtn" disabled>
+                <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+            </button>
+            <button class="btn btn-outline-secondary w-100" id="clearCart">
+                <i class="fas fa-trash me-2"></i>Clear Cart
+            </button>
+        </div>
     </div>
-</div>
+
+    <!-- Customization Modal -->
+    <div class="modal fade" id="customizationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Customize Your Pizza</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="customizationForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Size</h6>
+                                <div class="size-options mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="size" id="small" value="small" data-price="0">
+                                        <label class="form-check-label" for="small">
+                                            Small (8") - ₹0
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="size" id="medium" value="medium" data-price="100" checked>
+                                        <label class="form-check-label" for="medium">
+                                            Medium (12") - +₹100
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="size" id="large" value="large" data-price="200">
+                                        <label class="form-check-label" for="large">
+                                            Large (16") - +₹200
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <h6>Crust</h6>
+                                <div class="crust-options mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="crust" id="thin" value="thin" data-price="0" checked>
+                                        <label class="form-check-label" for="thin">
+                                            Thin Crust - ₹0
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="crust" id="thick" value="thick" data-price="50">
+                                        <label class="form-check-label" for="thick">
+                                            Thick Crust - +₹50
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="crust" id="stuffed" value="stuffed" data-price="100">
+                                        <label class="form-check-label" for="stuffed">
+                                            Cheese Stuffed - +₹100
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Extra Toppings</h6>
+                                <div class="toppings-options">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="extraCheese" value="extraCheese" data-price="60">
+                                        <label class="form-check-label" for="extraCheese">
+                                            Extra Cheese - +₹60
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="mushrooms" value="mushrooms" data-price="40">
+                                        <label class="form-check-label" for="mushrooms">
+                                            Mushrooms - +₹40
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="pepperoni" value="pepperoni" data-price="80">
+                                        <label class="form-check-label" for="pepperoni">
+                                            Pepperoni - +₹80
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="olives" value="olives" data-price="30">
+                                        <label class="form-check-label" for="olives">
+                                            Olives - +₹30
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="bellPeppers" value="bellPeppers" data-price="35">
+                                        <label class="form-check-label" for="bellPeppers">
+                                            Bell Peppers - +₹35
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="toppings" id="onions" value="onions" data-price="25">
+                                        <label class="form-check-label" for="onions">
+                                            Onions - +₹25
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Quantity</h6>
+                                <div class="input-group w-50">
+                                    <button class="btn btn-outline-secondary" type="button" id="decreaseQty">-</button>
+                                    <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="10">
+                                    <button class="btn btn-outline-secondary" type="button" id="increaseQty">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <strong>Total Price: ₹<span id="modalTotal">0</span></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="addToCartBtn">
+                        <i class="fas fa-plus me-2"></i>Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracking Modal -->
+    <div class="modal fade" id="trackingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Tracking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="tracking-steps">
+                        <div class="step completed">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <div class="step-content">
+                                <h6>Order Placed</h6>
+                                <p class="small text-muted">Your order has been received</p>
+                            </div>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-icon"><i class="fas fa-utensils"></i></div>
+                            <div class="step-content">
+                                <h6>Preparing</h6>
+                                <p class="small text-muted">Our chefs are preparing your order</p>
+                            </div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-icon"><i class="fas fa-fire"></i></div>
+                            <div class="step-content">
+                                <h6>Baking</h6>
+                                <p class="small text-muted">Your pizza is in the oven</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon"><i class="fas fa-truck"></i></div>
+                            <div class="step-content">
+                                <h6>Out for Delivery</h6>
+                                <p class="small text-muted">Your order is on the way</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon"><i class="fas fa-home"></i></div>
+                            <div class="step-content">
+                                <h6>Delivered</h6>
+                                <p class="small text-muted">Enjoy your meal!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="estimated-time text-center mt-4">
+                        <h6>Estimated Delivery Time</h6>
+                        <div class="time-display">
+                            <span class="badge bg-primary fs-6">18 minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./scripts/controllers/product-controller.js" type="module"></script>
+    <script src="./scripts/services/payment.js" type="module"></script>
+    <script src="./scripts/controllers/cart-controller.js" type="module"></script>
+    <script src="./scripts/controllers/ui-controller.js" type="module"></script>
 </body>
 </html>
