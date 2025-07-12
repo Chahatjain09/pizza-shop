@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Palace Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Pizza Palace - Component Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        function runTests() {
+            const results = document.getElementById('test-results');
+            const tests = [];
+
+            // Test 1: Check if main HTML loads
+            tests.push({
+                name: 'Main page structure',
+                test: () => document.querySelector('body') !== null
+            });
+
+            // Test 2: Check if required elements exist
+            tests.push({
+                name: 'Required elements present',
+                test: () => {
+                    return fetch('index.html')
+                        .then(response => response.text())
+                        .then(html => {
+                            return html.includes('Pizza Palace') && 
+                                   html.includes('productsGrid') && 
+                                   html.includes('cartSidebar');
+                        });
+                }
+            });
+
+            // Test 3: Check if CSS loads
+            tests.push({
+                name: 'CSS file accessible',
+                test: () => {
+                    return fetch('styles/main.css')
+                        .then(response => response.ok);
+                }
+            });
+
+            // Test 4: Check if JavaScript modules load
+            tests.push({
+                name: 'JavaScript modules accessible',
+                test: () => {
+                    return Promise.all([
+                        fetch('scripts/controllers/product-controller.js'),
+                        fetch('scripts/controllers/cart-controller.js'),
+                        fetch('scripts/controllers/ui-controller.js'),
+                        fetch('scripts/main.js')
+                    ]).then(responses => responses.every(r => r.ok));
+                }
+            });
+
+            // Test 5: Check API endpoint
+            tests.push({
+                name: 'Pizza API accessible',
+                test: () => {
+                    return fetch('https://raw.githubusercontent.com/Skill-risers/pizzajson/main/pizza.json')
+                        .then(response => response.ok);
+                }
+            });
+
+            // Run all tests
+            Promise.all(tests.map(async (test) => {
+                try {
+                    const result = await test.test();
+                    return { name: test.name, passed: result, error: null };
+                } catch (error) {
+                    return { name: test.name, passed: false, error: error.message };
+                }
+            })).then(testResults => {
+                results.innerHTML = testResults.map(result => `
+                    <div class="test ${result.passed ? 'pass' : 'fail'}">
+                        <strong>${result.name}:</strong> 
+                        ${result.passed ? '✅ PASS' : '❌ FAIL'}
+                        ${result.error ? ` - ${result.error}` : ''}
+                    </div>
+                `).join('');
+
+                const allPassed = testResults.every(r => r.passed);
+                results.innerHTML += `
+                    <div class="test ${allPassed ? 'pass' : 'fail'}">
+                        <h3>Overall Result: ${allPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}</h3>
+                        ${allPassed ? 
+                            '<p>🍕 Pizza Palace should be working correctly! Open <a href="index.html">index.html</a> to test.</p>' : 
+                            '<p>⚠️ There may be issues with the application. Check the failed tests above.</p>'
+                        }
+                    </div>
+                `;
+            });
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

@@ -1,47 +1,81 @@
 // Cart Controller - Handles all cart-related functionality
 import CartService from '../services/cart-service.js';
-import UIController from './ui-controller.js';
 
 class CartController {
     constructor() {
         this.cartService = new CartService();
-        this.uiController = new UIController();
         this.init();
     }
 
     init() {
-        this.bindEvents();
-        this.loadCartFromStorage();
-        this.updateCartUI();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.bindEvents();
+                this.loadCartFromStorage();
+                this.updateCartUI();
+            });
+        } else {
+            this.bindEvents();
+            this.loadCartFromStorage();
+            this.updateCartUI();
+        }
     }
 
     bindEvents() {
         // Cart toggle button
-        document.getElementById('cartToggle').addEventListener('click', () => {
-            this.toggleCart();
-        });
+        const cartToggle = document.getElementById('cartToggle');
+        if (cartToggle) {
+            cartToggle.addEventListener('click', () => {
+                this.toggleCart();
+            });
+        }
 
         // Close cart button
-        document.getElementById('closeCart').addEventListener('click', () => {
-            this.closeCart();
-        });
+        const closeCart = document.getElementById('closeCart');
+        if (closeCart) {
+            closeCart.addEventListener('click', () => {
+                this.closeCart();
+            });
+        }
 
         // Clear cart button
-        document.getElementById('clearCart').addEventListener('click', () => {
-            this.clearCart();
-        });
+        const clearCart = document.getElementById('clearCart');
+        if (clearCart) {
+            clearCart.addEventListener('click', () => {
+                this.clearCart();
+            });
+        }
 
         // Checkout button
-        document.getElementById('checkoutBtn').addEventListener('click', () => {
-            this.proceedToCheckout();
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                this.proceedToCheckout();
+            });
+        }
+
+        // Listen for add to cart events
+        window.addEventListener('addToCart', (event) => {
+            this.addToCart(event.detail);
         });
+
+        // Track order button
+        const trackOrder = document.getElementById('trackOrder');
+        if (trackOrder) {
+            trackOrder.addEventListener('click', () => {
+                this.showOrderTracking();
+            });
+        }
 
         // Close cart when clicking outside
         document.addEventListener('click', (e) => {
             const cartSidebar = document.getElementById('cartSidebar');
             const cartToggle = document.getElementById('cartToggle');
             
-            if (!cartSidebar.contains(e.target) && !cartToggle.contains(e.target)) {
+            if (cartSidebar && cartToggle && 
+                !cartSidebar.contains(e.target) && 
+                !cartToggle.contains(e.target)) {
                 this.closeCart();
             }
         });
@@ -120,19 +154,23 @@ class CartController {
     // Toggle cart sidebar
     toggleCart() {
         const cartSidebar = document.getElementById('cartSidebar');
-        cartSidebar.classList.toggle('active');
-        
-        if (cartSidebar.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
+        if (cartSidebar) {
+            cartSidebar.classList.toggle('active');
+            
+            if (cartSidebar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
         }
     }
 
     // Close cart sidebar
     closeCart() {
         const cartSidebar = document.getElementById('cartSidebar');
-        cartSidebar.classList.remove('active');
+        if (cartSidebar) {
+            cartSidebar.classList.remove('active');
+        }
         document.body.style.overflow = 'auto';
     }
 
@@ -147,19 +185,23 @@ class CartController {
     // Update cart count badge
     updateCartCount() {
         const cartCount = document.getElementById('cartCount');
-        const totalItems = this.cartService.getTotalItems();
-        cartCount.textContent = totalItems;
-        
-        if (totalItems > 0) {
-            cartCount.style.display = 'inline-block';
-        } else {
-            cartCount.style.display = 'none';
+        if (cartCount) {
+            const totalItems = this.cartService.getTotalItems();
+            cartCount.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartCount.style.display = 'inline-block';
+            } else {
+                cartCount.style.display = 'none';
+            }
         }
     }
 
     // Update cart items display
     updateCartItems() {
         const cartItems = document.getElementById('cartItems');
+        if (!cartItems) return;
+        
         const items = this.cartService.getItems();
         
         if (items.length === 0) {
@@ -265,21 +307,28 @@ class CartController {
         const tax = this.cartService.getTax();
         const total = this.cartService.getTotal();
 
-        document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
-        document.getElementById('delivery').textContent = `₹${delivery.toFixed(2)}`;
-        document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
-        document.getElementById('total').textContent = `₹${total.toFixed(2)}`;
+        const subtotalEl = document.getElementById('subtotal');
+        const deliveryEl = document.getElementById('delivery');
+        const taxEl = document.getElementById('tax');
+        const totalEl = document.getElementById('total');
+
+        if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toFixed(2)}`;
+        if (deliveryEl) deliveryEl.textContent = `₹${delivery.toFixed(2)}`;
+        if (taxEl) taxEl.textContent = `₹${tax.toFixed(2)}`;
+        if (totalEl) totalEl.textContent = `₹${total.toFixed(2)}`;
     }
 
     // Update checkout button state
     updateCheckoutButton() {
         const checkoutBtn = document.getElementById('checkoutBtn');
-        const hasItems = this.cartService.getTotalItems() > 0;
-        
-        checkoutBtn.disabled = !hasItems;
-        checkoutBtn.innerHTML = hasItems 
-            ? '<i class="fas fa-credit-card me-2"></i>Proceed to Checkout'
-            : '<i class="fas fa-credit-card me-2"></i>Add items to checkout';
+        if (checkoutBtn) {
+            const hasItems = this.cartService.getTotalItems() > 0;
+            
+            checkoutBtn.disabled = !hasItems;
+            checkoutBtn.innerHTML = hasItems 
+                ? '<i class="fas fa-credit-card me-2"></i>Proceed to Checkout'
+                : '<i class="fas fa-credit-card me-2"></i>Add items to checkout';
+        }
     }
 
     // Proceed to checkout
@@ -293,11 +342,11 @@ class CartController {
         }
 
         // Show loading
-        this.uiController.showLoading();
+        this.showLoading();
         
         // Simulate checkout process
         setTimeout(() => {
-            this.uiController.hideLoading();
+            this.hideLoading();
             
             // Trigger payment process
             this.initiatePayment(total);
@@ -333,18 +382,42 @@ class CartController {
         
         // Show order tracking
         setTimeout(() => {
-            this.uiController.showOrderTracking();
+            this.showOrderTracking();
         }, 1500);
+    }
+
+    // Show order tracking modal
+    showOrderTracking() {
+        const modal = new bootstrap.Modal(document.getElementById('trackingModal'));
+        modal.show();
+    }
+
+    // Show loading overlay
+    showLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+    }
+
+    // Hide loading overlay
+    hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
     }
 
     // Animate cart badge
     animateCartBadge() {
         const cartCount = document.getElementById('cartCount');
-        cartCount.classList.add('cart-badge-animate');
-        
-        setTimeout(() => {
-            cartCount.classList.remove('cart-badge-animate');
-        }, 300);
+        if (cartCount) {
+            cartCount.classList.add('cart-badge-animate');
+            
+            setTimeout(() => {
+                cartCount.classList.remove('cart-badge-animate');
+            }, 300);
+        }
     }
 
     // Show success message
@@ -361,7 +434,9 @@ class CartController {
         setTimeout(() => {
             successDiv.classList.add('fade-out');
             setTimeout(() => {
-                document.body.removeChild(successDiv);
+                if (document.body.contains(successDiv)) {
+                    document.body.removeChild(successDiv);
+                }
             }, 300);
         }, 3000);
     }
@@ -381,7 +456,9 @@ class CartController {
         setTimeout(() => {
             errorDiv.classList.add('fade-out');
             setTimeout(() => {
-                document.body.removeChild(errorDiv);
+                if (document.body.contains(errorDiv)) {
+                    document.body.removeChild(errorDiv);
+                }
             }, 300);
         }, 3000);
     }
@@ -430,6 +507,16 @@ class CartController {
     }
 }
 
-// Export singleton instance
-const cartController = new CartController();
+// Initialize cart controller when DOM is ready
+let cartController;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        cartController = new CartController();
+        window.cartController = cartController;
+    });
+} else {
+    cartController = new CartController();
+    window.cartController = cartController;
+}
+
 export default cartController;

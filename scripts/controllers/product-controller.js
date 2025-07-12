@@ -1,33 +1,37 @@
 // Product Controller - Enhanced for Domino's-style pizza ordering
 import productOperations from "../services/product-operations.js";
-import UIController from "./ui-controller.js";
 
 class ProductController {
     constructor() {
         this.products = [];
-        this.uiController = new UIController();
         this.init();
     }
 
     async init() {
-        await this.loadProducts();
-        this.uiController.initializeUI();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.loadProducts();
+            });
+        } else {
+            await this.loadProducts();
+        }
     }
 
     // Load all products from API
     async loadProducts() {
         try {
-            this.uiController.showLoading();
+            this.showLoading();
             
             const allProducts = await productOperations.loadProduct();
             this.products = this.enhanceProductData(allProducts);
             
             this.renderProducts();
-            this.uiController.hideLoading();
+            this.hideLoading();
             
         } catch (error) {
             console.error('Error loading products:', error);
-            this.uiController.hideLoading();
+            this.hideLoading();
             this.showErrorMessage('Failed to load products. Please refresh the page.');
         }
     }
@@ -509,12 +513,20 @@ class ProductController {
     // Render all products
     renderProducts() {
         const productsGrid = document.getElementById('productsGrid');
+        if (!productsGrid) {
+            console.error('Products grid not found');
+            return;
+        }
+        
         productsGrid.innerHTML = '';
 
         this.products.forEach(product => {
             const productCard = this.createProductCard(product);
             productsGrid.appendChild(productCard);
         });
+
+        // Initialize animations after rendering
+        this.animateProductCards();
     }
 
     // Create product card HTML
@@ -590,7 +602,18 @@ class ProductController {
 
     // Show customization modal
     showCustomizationModal(product) {
-        this.uiController.showCustomizationModal(product);
+        // Store current product globally so modal can access it
+        window.currentProduct = product;
+        
+        // Update modal title
+        const modalTitle = document.querySelector('#customizationModal .modal-title');
+        if (modalTitle) {
+            modalTitle.textContent = `Customize Your ${product.name}`;
+        }
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('customizationModal'));
+        modal.show();
     }
 
     // Quick add to cart with default options
@@ -627,15 +650,75 @@ class ProductController {
 
     // Add to cart with animation
     addToCartWithAnimation(cartItem) {
-        // Import cart controller dynamically to avoid circular dependency
-        import('./cart-controller.js').then(module => {
-            module.default.addToCart(cartItem);
+        // Trigger custom event for cart to handle
+        const event = new CustomEvent('addToCart', {
+            detail: cartItem
         });
+        window.dispatchEvent(event);
     }
 
     // Show error message
     showErrorMessage(message) {
-        this.uiController.showErrorNotification(message);
+        this.showNotification(message, 'error');
+    }
+
+    // Show loading overlay
+    showLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+    }
+
+    // Hide loading overlay
+    hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    }
+
+    // Show notification
+    showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = 'success-message';
+        if (type === 'error') {
+            notification.style.backgroundColor = 'var(--danger-color)';
+        }
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
+            ${message}
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Add product card animations
+    animateProductCards() {
+        const cards = document.querySelectorAll('.product-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        cards.forEach(card => {
+            observer.observe(card);
+        });
     }
 
     // Get product by ID
@@ -679,6 +762,16 @@ class ProductController {
     }
 }
 
-// Initialize product controller
-const productController = new ProductController();
+// Initialize product controller when DOM is ready
+let productController;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        productController = new ProductController();
+        window.productController = productController;
+    });
+} else {
+    productController = new ProductController();
+    window.productController = productController;
+}
+
 export default productController;

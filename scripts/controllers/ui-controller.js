@@ -6,19 +6,22 @@ class UIController {
     }
 
     init() {
-        this.bindEvents();
-        this.initializeModals();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.bindEvents();
+                this.initializeModals();
+            });
+        } else {
+            this.bindEvents();
+            this.initializeModals();
+        }
     }
 
     bindEvents() {
         // Category filter events
         this.bindCategoryFilters();
         
-        // Order tracking button
-        document.getElementById('trackOrder').addEventListener('click', () => {
-            this.showOrderTracking();
-        });
-
         // Modal events
         this.bindModalEvents();
         
@@ -71,7 +74,10 @@ class UIController {
         });
 
         // Scroll to menu section
-        document.getElementById('menu').scrollIntoView({ behavior: 'smooth' });
+        const menuSection = document.getElementById('menu');
+        if (menuSection) {
+            menuSection.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     // Update active navigation link
@@ -97,23 +103,33 @@ class UIController {
     // Bind customization modal events
     bindCustomizationModal() {
         // Quantity controls
-        document.getElementById('decreaseQty').addEventListener('click', () => {
-            const quantityInput = document.getElementById('quantity');
-            const currentValue = parseInt(quantityInput.value);
-            if (currentValue > 1) {
-                quantityInput.value = currentValue - 1;
-                this.updateModalTotal();
-            }
-        });
+        const decreaseQty = document.getElementById('decreaseQty');
+        if (decreaseQty) {
+            decreaseQty.addEventListener('click', () => {
+                const quantityInput = document.getElementById('quantity');
+                if (quantityInput) {
+                    const currentValue = parseInt(quantityInput.value);
+                    if (currentValue > 1) {
+                        quantityInput.value = currentValue - 1;
+                        this.updateModalTotal();
+                    }
+                }
+            });
+        }
 
-        document.getElementById('increaseQty').addEventListener('click', () => {
-            const quantityInput = document.getElementById('quantity');
-            const currentValue = parseInt(quantityInput.value);
-            if (currentValue < 10) {
-                quantityInput.value = currentValue + 1;
-                this.updateModalTotal();
-            }
-        });
+        const increaseQty = document.getElementById('increaseQty');
+        if (increaseQty) {
+            increaseQty.addEventListener('click', () => {
+                const quantityInput = document.getElementById('quantity');
+                if (quantityInput) {
+                    const currentValue = parseInt(quantityInput.value);
+                    if (currentValue < 10) {
+                        quantityInput.value = currentValue + 1;
+                        this.updateModalTotal();
+                    }
+                }
+            });
+        }
 
         // Size, crust, and toppings change events
         document.querySelectorAll('input[name="size"], input[name="crust"], input[name="toppings"]').forEach(input => {
@@ -123,53 +139,49 @@ class UIController {
         });
 
         // Quantity input change
-        document.getElementById('quantity').addEventListener('change', () => {
-            this.updateModalTotal();
-        });
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) {
+            quantityInput.addEventListener('change', () => {
+                this.updateModalTotal();
+            });
+        }
 
         // Add to cart button
-        document.getElementById('addToCartBtn').addEventListener('click', () => {
-            this.addCustomizedItemToCart();
-        });
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', () => {
+                this.addCustomizedItemToCart();
+            });
+        }
 
         // Reset modal when closed
-        document.getElementById('customizationModal').addEventListener('hidden.bs.modal', () => {
-            this.resetCustomizationModal();
-        });
+        const customizationModal = document.getElementById('customizationModal');
+        if (customizationModal) {
+            customizationModal.addEventListener('hidden.bs.modal', () => {
+                this.resetCustomizationModal();
+            });
+        }
     }
 
     // Bind tracking modal events
     bindTrackingModal() {
-        document.getElementById('trackingModal').addEventListener('shown.bs.modal', () => {
-            this.animateTrackingSteps();
-        });
-    }
-
-    // Show customization modal
-    showCustomizationModal(product) {
-        this.currentProduct = product;
-        
-        // Update modal title
-        document.querySelector('#customizationModal .modal-title').textContent = `Customize Your ${product.name}`;
-        
-        // Reset form
-        this.resetCustomizationModal();
-        
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('customizationModal'));
-        modal.show();
-        
-        // Update total
-        this.updateModalTotal();
+        const trackingModal = document.getElementById('trackingModal');
+        if (trackingModal) {
+            trackingModal.addEventListener('shown.bs.modal', () => {
+                this.animateTrackingSteps();
+            });
+        }
     }
 
     // Reset customization modal
     resetCustomizationModal() {
         // Reset size to medium
-        document.getElementById('medium').checked = true;
+        const mediumSize = document.getElementById('medium');
+        if (mediumSize) mediumSize.checked = true;
         
         // Reset crust to thin
-        document.getElementById('thin').checked = true;
+        const thinCrust = document.getElementById('thin');
+        if (thinCrust) thinCrust.checked = true;
         
         // Uncheck all toppings
         document.querySelectorAll('input[name="toppings"]').forEach(input => {
@@ -177,7 +189,8 @@ class UIController {
         });
         
         // Reset quantity
-        document.getElementById('quantity').value = 1;
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) quantityInput.value = 1;
         
         // Update total
         this.updateModalTotal();
@@ -185,9 +198,10 @@ class UIController {
 
     // Update modal total price
     updateModalTotal() {
-        if (!this.currentProduct) return;
+        const currentProduct = window.currentProduct;
+        if (!currentProduct) return;
         
-        let total = this.currentProduct.basePrice;
+        let total = currentProduct.basePrice;
         
         // Add size price
         const selectedSize = document.querySelector('input[name="size"]:checked');
@@ -208,37 +222,46 @@ class UIController {
         });
         
         // Multiply by quantity
-        const quantity = parseInt(document.getElementById('quantity').value);
+        const quantityInput = document.getElementById('quantity');
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
         total *= quantity;
         
         // Update display
-        document.getElementById('modalTotal').textContent = total;
+        const modalTotal = document.getElementById('modalTotal');
+        if (modalTotal) {
+            modalTotal.textContent = total;
+        }
     }
 
     // Add customized item to cart
     addCustomizedItemToCart() {
-        if (!this.currentProduct) return;
+        const currentProduct = window.currentProduct;
+        if (!currentProduct) return;
         
         const customizations = this.getCustomizations();
-        const quantity = parseInt(document.getElementById('quantity').value);
+        const quantityInput = document.getElementById('quantity');
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
         
         const cartItem = {
-            productId: this.currentProduct.id,
-            name: this.currentProduct.name,
-            image: this.currentProduct.image,
-            basePrice: this.currentProduct.basePrice,
+            productId: currentProduct.id,
+            name: currentProduct.name,
+            image: currentProduct.image,
+            basePrice: currentProduct.basePrice,
             quantity: quantity,
             customizations: customizations
         };
         
-        // Import cart controller and add item
-        import('./cart-controller.js').then(module => {
-            module.default.addToCart(cartItem);
+        // Trigger add to cart event
+        const event = new CustomEvent('addToCart', {
+            detail: cartItem
         });
+        window.dispatchEvent(event);
         
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('customizationModal'));
-        modal.hide();
+        if (modal) {
+            modal.hide();
+        }
     }
 
     // Get customizations from modal
@@ -266,12 +289,6 @@ class UIController {
         return customizations;
     }
 
-    // Show order tracking modal
-    showOrderTracking() {
-        const modal = new bootstrap.Modal(document.getElementById('trackingModal'));
-        modal.show();
-    }
-
     // Animate tracking steps
     animateTrackingSteps() {
         const steps = document.querySelectorAll('.step');
@@ -290,25 +307,15 @@ class UIController {
         });
     }
 
-    // Show loading overlay
-    showLoading() {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.classList.add('active');
-    }
-
-    // Hide loading overlay
-    hideLoading() {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.classList.remove('active');
-    }
-
     // Initialize modals
     initializeModals() {
-        // Initialize Bootstrap modals
-        const modalElements = document.querySelectorAll('.modal');
-        modalElements.forEach(modalElement => {
-            new bootstrap.Modal(modalElement);
-        });
+        // Initialize Bootstrap modals if available
+        if (typeof bootstrap !== 'undefined') {
+            const modalElements = document.querySelectorAll('.modal');
+            modalElements.forEach(modalElement => {
+                new bootstrap.Modal(modalElement);
+            });
+        }
     }
 
     // Bind smooth scrolling
@@ -328,74 +335,6 @@ class UIController {
         });
     }
 
-    // Add product card animations
-    animateProductCards() {
-        const cards = document.querySelectorAll('.product-card');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-        
-        cards.forEach(card => {
-            observer.observe(card);
-        });
-    }
-
-    // Show success notification
-    showSuccessNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'success-message';
-        notification.innerHTML = `
-            <i class="fas fa-check-circle me-2"></i>
-            ${message}
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.add('fade-out');
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    // Show error notification
-    showErrorNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'success-message';
-        notification.style.backgroundColor = 'var(--danger-color)';
-        notification.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i>
-            ${message}
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.add('fade-out');
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    // Update page title with cart count
-    updatePageTitle(cartCount) {
-        const baseTitle = 'Pizza Palace - Order Online';
-        document.title = cartCount > 0 ? `(${cartCount}) ${baseTitle}` : baseTitle;
-    }
-
     // Handle responsive navigation
     handleResponsiveNav() {
         const navbar = document.querySelector('.navbar-collapse');
@@ -404,7 +343,7 @@ class UIController {
         // Close mobile menu when clicking on links
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
-                if (navbar.classList.contains('show')) {
+                if (navbar && navbar.classList.contains('show') && navToggler) {
                     navToggler.click();
                 }
             });
@@ -413,11 +352,20 @@ class UIController {
 
     // Initialize all UI features
     initializeUI() {
-        this.animateProductCards();
         this.handleResponsiveNav();
     }
 }
 
-// Export singleton instance
-const uiController = new UIController();
+// Initialize UI controller when DOM is ready
+let uiController;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        uiController = new UIController();
+        window.uiController = uiController;
+    });
+} else {
+    uiController = new UIController();
+    window.uiController = uiController;
+}
+
 export default uiController;

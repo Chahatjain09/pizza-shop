@@ -710,3 +710,90 @@ body {
     font-weight: 600;
     margin-left: 0.5rem;
 }
+
+/* Mobile-specific styles */
+.mobile-view .hero-section {
+    min-height: 50vh;
+    padding: 2rem 0;
+}
+
+.mobile-view .hero-section .display-4 {
+    font-size: 1.8rem;
+}
+
+.mobile-view .navbar-brand {
+    font-size: 1.2rem;
+}
+
+.mobile-view .cart-sidebar {
+    width: 100vw;
+    right: -100vw;
+}
+
+.mobile-view .modal-dialog {
+    margin: 0.5rem;
+}
+
+/* Touch-friendly buttons on mobile */
+@media (hover: none) and (pointer: coarse) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .cart-item-controls .btn {
+        min-height: 36px;
+        min-width: 36px;
+    }
+}
+
+/* Better mobile navigation */
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        color: var(--dark-color) !important;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin: 0.25rem 0;
+    }
+    
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        background-color: var(--primary-color);
+        color: white !important;
+    }
+}
+
+/* Loading states */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+    from {
+        transform: rotate(0turn);
+    }
+    to {
+        transform: rotate(1turn);
+    }
+}
