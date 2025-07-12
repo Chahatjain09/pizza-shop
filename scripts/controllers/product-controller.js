@@ -26,7 +26,7 @@ function printBasket(){
     basket.innerHTML = '';
     for(let product of cartproducts){
        const li = document.createElement('li');
-       li.innerText = '${product.name} ${product.price}';
+       li.innerText = `${product.name} ${product.price}`;
        basket.appendChild(li);
     }
 }
@@ -55,6 +55,8 @@ function preparePizzaCard(pizza){
     const button = document.createElement('button');
     button.innerText = 'Add to Cart';
     button.className = 'btn btn-primary';
+    button.setAttribute('product-id', pizza.id);
+    button.addEventListener('click', addToCart);
     cardBody.appendChild(h5);
     cardBody.appendChild(pTag);
     cardBody.appendChild(button);

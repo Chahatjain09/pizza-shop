@@ -8,8 +8,12 @@ const productOperations = {
     search(pizzaID){
         const product = this.products.find(currentproduct =>currentproduct.id== pizzaID);
         console.log('product Found ', product);
-        product.isAddedInCart = true;
-        console.log('Array', this.products);
+        if (product) {
+            product.isAddedInCart = true;
+            console.log('Array', this.products);
+        } else {
+            console.error('Product not found with ID:', pizzaID);
+        }
     },
     getProductsInCart(){
         const productInBasket = this.products.filter(product=>product.isAddedInCart);
