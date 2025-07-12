@@ -26,10 +26,28 @@ A modern, responsive pizza ordering application built with vanilla JavaScript, f
 - **Persistent Storage**: Cart data saved to localStorage
 
 ### 🛍️ **Product Categories**
-- **Pizzas**: Customizable with size, crust, and toppings
-- **Sides**: Garlic bread, breadsticks, wings
-- **Beverages**: Soft drinks, fresh juices, lassi
-- **Desserts**: Brownies, tiramisu, and more
+- **Pizzas**: 
+  - Vegetarian pizzas from API
+  - Non-vegetarian: Chicken Supreme, Pepperoni, BBQ Chicken, Meat Lovers
+  - Specialty: Margherita Deluxe, Four Cheese, Mediterranean
+  - All customizable with size, crust, and toppings
+- **Sides**: 
+  - Garlic Bread, Cheesy Breadsticks, Stuffed Garlic Bread
+  - Buffalo Wings, Chicken Nuggets
+  - Loaded Potato Wedges, Onion Rings
+  - Mozzarella Sticks, Caesar Salad, Pasta Arrabiata
+- **Beverages**: 
+  - Soft Drinks: Coca Cola, Pepsi, Energy Drinks
+  - Fresh Juices: Orange, Apple, Lime Soda
+  - Hot Drinks: Coffee, Tea
+  - Specialty: Milkshakes, Smoothies, Lassi, Mineral Water
+- **Desserts**: 
+  - Cakes: Chocolate Brownie, Tiramisu, Cheesecake, Lava Cake
+  - Others: Ice Cream Sundae, Apple Pie, Donuts, Chocolate Mousse
+- **Combo Deals**:
+  - Pizza Combo for 1, Family Feast, Date Night Special
+  - Party Pack, Lunch Special, Student Deal
+  - Special savings on combo purchases
 
 ### 💳 **Payment & Checkout**
 - **Secure Payment**: Razorpay integration for safe transactions

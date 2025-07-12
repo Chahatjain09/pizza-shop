@@ -622,3 +622,91 @@ body {
 .cart-body::-webkit-scrollbar-thumb:hover {
     background: #bbb;
 }
+
+/* Special Combo Cards Styling */
+.product-card[data-category="combos"] {
+    border: 2px solid var(--warning-color);
+    background: linear-gradient(135deg, #fff 0%, #fff9e6 100%);
+    position: relative;
+}
+
+.product-card[data-category="combos"]::before {
+    content: 'COMBO DEAL';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--warning-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.product-card[data-category="combos"] .price {
+    color: var(--warning-color);
+    font-size: 1.75rem;
+}
+
+/* Badge Styles for Different Categories */
+.product-card[data-category="pizzas"] .card-title::after {
+    content: '🍕';
+    margin-left: 8px;
+}
+
+.product-card[data-category="sides"] .card-title::after {
+    content: '🍟';
+    margin-left: 8px;
+}
+
+.product-card[data-category="beverages"] .card-title::after {
+    content: '🥤';
+    margin-left: 8px;
+}
+
+.product-card[data-category="desserts"] .card-title::after {
+    content: '🍰';
+    margin-left: 8px;
+}
+
+.product-card[data-category="combos"] .card-title::after {
+    content: '🎉';
+    margin-left: 8px;
+}
+
+/* Special offers banner */
+.special-offers {
+    background: linear-gradient(45deg, var(--warning-color), #ff8c42);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    margin: 2rem 0;
+    border-radius: var(--border-radius);
+    animation: pulse 2s infinite;
+}
+
+.special-offers h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.special-offers p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+/* Menu item count badge */
+.category-count {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}

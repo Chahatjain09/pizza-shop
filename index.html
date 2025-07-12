@@ -41,6 +41,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-category="desserts">Desserts</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-category="combos">Combos</a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center">
                     <button class="btn btn-outline-light me-3" id="cartToggle">
@@ -80,6 +83,12 @@
 
     <!-- Main Content -->
     <main class="container my-5" id="menu">
+        <!-- Special Offers Banner -->
+        <div class="special-offers">
+            <h4><i class="fas fa-fire me-2"></i>Special Combo Deals</h4>
+            <p>Save big with our amazing combo offers! Free delivery on orders above ₹500</p>
+        </div>
+
         <!-- Category Filters -->
         <div class="row mb-4">
             <div class="col-12">
@@ -100,6 +109,9 @@
                         
                         <input type="radio" class="btn-check" name="category" id="desserts" autocomplete="off">
                         <label class="btn btn-outline-primary" for="desserts">Desserts</label>
+                        
+                        <input type="radio" class="btn-check" name="category" id="combos" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="combos">Combos</label>
                     </div>
                 </div>
             </div>
