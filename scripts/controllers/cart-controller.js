@@ -306,19 +306,20 @@ class CartController {
 
     // Initiate payment
     initiatePayment(amount) {
-        // Update payment options with current amount
-        if (window.rzp1) {
-            window.rzp1.options.amount = (amount * 100).toString(); // Convert to paise
-            window.rzp1.options.handler = (response) => {
-                this.handlePaymentSuccess(response);
-            };
-            window.rzp1.open();
-        } else {
-            this.showErrorMessage('Payment system not available');
-        }
+        // Import payment service and process payment
+        import('../services/payment.js').then(module => {
+            const paymentService = module.default;
+            const cartSummary = this.cartService.getCartSummary();
+            
+            if (paymentService.isPaymentSupported()) {
+                paymentService.processPayment(cartSummary);
+            } else {
+                this.showErrorMessage('Payment system not available');
+            }
+        });
     }
 
-    // Handle successful payment
+    // Handle successful payment (called by payment service)
     handlePaymentSuccess(response) {
         this.showSuccessMessage('Payment successful! Your order is being processed.');
         
